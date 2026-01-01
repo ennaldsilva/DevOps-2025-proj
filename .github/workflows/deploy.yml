@@ -1,0 +1,29 @@
+name: Deploy Automatico na AWS
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Entra na pasta do projeto
+            cd /home/admin/codigo
+            # Garante que temos as ultimas mudancas
+            git pull origin main
+            # Instala dependencias (caso haja novas)
+            npm install
+            # Reinicia o servidor
+            pm2 restart app-devops
